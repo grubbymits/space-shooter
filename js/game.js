@@ -7,7 +7,7 @@ var rightPressed = false;
 var leftPressed = false;
 var spacePressed = false;
 
-context.fillStyle = 'midnightblue';
+context.fillStyle = '#002B36';
 context.fillRect(0, 0, canvas.width, canvas.height);
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
