@@ -78,6 +78,9 @@ class Enemy extends Entity {
     super(x, y, speed, sprite);
     this.deathSound = new Audio('res/audio/sfx_zap.mp3');
     this.deathSound.load();
+    this.health = 1;
+    this.lastShot = Date.now();
+    this.laser = new EnemyLaser(this.x, this.y, 5);
   }
 
   update() {
@@ -86,8 +89,52 @@ class Enemy extends Entity {
     if (this.y > canvas.height) {
       return true;
     }
+    if (Date.now() > this.lastShot + this.fireRate) {
+      if (!this.laser.isFired) {
+        this.laser.x = this.x + this.img.width / 2;
+        this.laser.y = this.y + this.img.height;
+        this.laser.isFired = true;
+        this.laser.sound.play();
+        this.lastShot = Date.now();
+      }
+    }
+    if (this.laser.isFired) {
+      this.laser.update();
+    }
     return false;
   }
+
+  takeDamage(damage) {
+    this.health -= damage;
+    if (this.health < 1) {
+      return true;
+    }
+    return false;
+  }
+}
+
+// 5 types of enemy:
+// scout
+// intercepter
+// fighter
+// bomber
+// destroyer
+var enemyHealths =    [ 7, 10, 13, 18, 20 ];
+var enemySpeeds =     [ 1.75, 1.5, 1.25, 1, 0.75 ];
+var enemyFirePowers = [ 1, 2, 3, 4, 5 ];
+var enemyFireRates =  [ 4000, 5000, 6000, 80000, 10000 ];
+
+function respawnEnemy(enemy, i) {
+  enemy.deathSound.play();
+  let type = getBoundedRandom(enemySprites.length, 0);
+  enemy.x = getBoundedRandom(COLUMN_WIDTH / 2 + (COLUMN_WIDTH * i),
+                             COLUMN_WIDTH * i);
+  enemy.y = getBoundedRandom(-256, -128);
+  enemy.img = enemySprites[type];
+  enemy.speed = enemySpeeds[type];
+  enemy.health = enemyHealths[type];
+  enemy.firePower = enemyFirePowers[type];
+  enemy.fireRate = enemyFireRates[type];
 }
 
 class Player extends Entity {
@@ -99,6 +146,8 @@ class Player extends Entity {
     this.shootDelay = 100;
     this.score = 0;
     this.lives = 5;
+    this.maxHealth = 4;
+    this.health = 4;
 
     this.lasers = [];
     for (let i = 0; i < maxNumLasers; ++i) {

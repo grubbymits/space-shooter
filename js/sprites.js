@@ -8,6 +8,9 @@ class Sprite {
 var starSprite = new Sprite('star');
 
 var playerSprite = new Sprite('player_orange1');
+var playerDamageSprites = [ new Sprite('playerShip1_damage3'),
+                            new Sprite('playerShip1_damage2'),
+                            new Sprite('playerShip1_damage1') ];
 var playerLivesSprite = new Sprite('lives_orange');
 var playerLaserSprite = new Sprite('laser_green1');
 var enemyLaserSprite = new Sprite('laser_red1');

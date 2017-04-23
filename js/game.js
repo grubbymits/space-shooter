@@ -39,14 +39,6 @@ function keyUpHandler(e) {
 }
 
 /* Game logic */
-function respawnEnemy(enemy, i) {
-  enemy.deathSound.play();
-  enemy.x = getBoundedRandom(COLUMN_WIDTH / 2 + (COLUMN_WIDTH * i),
-                             COLUMN_WIDTH * i);
-  enemy.y = -128;
-  let index = getBoundedRandom(enemySprites.length, 0);
-  enemy.img = enemySprites[index];
-}
 
 function updateStars(stars) {
   for (let star of stars) {
@@ -67,6 +59,7 @@ function updateEnemies(enemies) {
 }
 
 function detectCollisions(player, enemies) {
+  // Detect player laser collisions
   for (let i in player.lasers) {
     let laser = player.lasers[i];
     if (!laser.isFired) {
@@ -81,10 +74,27 @@ function detectCollisions(player, enemies) {
         (laser.y < enemy.y + enemy.img.height)) {
   
       laser.isFired = false;
-      player.score++;
-      respawnEnemy(enemy, column);
+      if (enemy.takeDamage(5)) {
+        player.score++;
+        respawnEnemy(enemy, column);
+      }
     }
   }
+
+  // Detect enemy laser collisions
+  let column = Math.floor(player.x / COLUMN_WIDTH);
+  let laser = enemies[column].laser;
+  if (laser.isFired) {
+    if ((laser.x + laser.img.width >= player.x) &&
+        (laser.x < player.x + player.img.width) &&
+        (laser.y > player.y) &&
+        (laser.y < player.y + player.img.height)) {
+  
+      laser.isFired = false;
+      player.health--;
+    }
+  }
+
   let start = Math.floor(player.x / COLUMN_WIDTH);
   let end = Math.ceil(player.x / COLUMN_WIDTH);
   if (end >= numEnemies) {
@@ -120,12 +130,17 @@ window.onload = function() {
     let enemySprite = enemySprites[index];
     let x = getBoundedRandom(COLUMN_WIDTH / 2 + (COLUMN_WIDTH * i),
                              COLUMN_WIDTH * i);
-    let enemy = new Enemy(x, 0, 1, enemySprite);
+    let y = getBoundedRandom(-128, -300);
+    let enemy = new Enemy(x, y, 1, enemySprite);
+    enemy.health = enemyHealths[index];
+    enemy.speed = enemySpeeds[index];
+    enemy.firePower = enemyFirePowers[index];
+    enemy.fireRate = enemyFireRates[index];
     enemies.push(enemy);
   }
   
   let x = canvas.width / 2;
-  let y = canvas.height - 70;
+  let y = canvas.height - playerSprite.img.height;
   var player = new Player(x, y, playerSprite);
   
   
@@ -144,7 +159,7 @@ window.onload = function() {
         ++framesSkipped;
         nextUpdate += FPS;
       
-        if (player.lives > 0) {
+        if (player.lives > 0 && player.health > 0) {
           updateStars(stars);
           detectCollisions(player, enemies);
           let escapedEnemies = updateEnemies(enemies);

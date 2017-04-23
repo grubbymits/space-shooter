@@ -8,6 +8,9 @@ function drawEntities(entities) {
   for (let i in entities) {
     let entity = entities[i];
     context.drawImage(entity.img, entity.x, entity.y);
+    if (entity.laser && entity.laser.isFired) {
+      context.drawImage(entity.laser.img, entity.laser.x, entity.laser.y);
+    }
   }
 }
 
@@ -34,6 +37,12 @@ function drawStats(player) {
 function drawPlayer(player) {
   drawStats(player);
   drawEntity(player);
+  if (player.health < player.maxHealth) {
+    if (player.health > 0) {
+      context.drawImage(playerDamageSprites[player.health-1].img,
+                        player.x, player.y);
+    }
+  }
   for (let i in player.lasers) {
     let laser = player.lasers[i];
     if (laser.isFired) {
