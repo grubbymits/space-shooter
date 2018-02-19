@@ -120,7 +120,7 @@ class Enemy extends Entity {
 // bomber
 // destroyer
 var enemyHealths =    [ 7, 10, 13, 18, 20 ];
-var enemySpeeds =     [ 1.75, 1.5, 1.25, 1, 0.75 ];
+var enemySpeeds =     [ 1.2, 1, 0.8, 0.6, 0.5 ];
 var enemyFirePowers = [ 1, 2, 3, 4, 5 ];
 var enemyFireRates =  [ 4000, 5000, 6000, 80000, 10000 ];
 
